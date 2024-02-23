@@ -1,0 +1,141 @@
+---
+title:
+output:
+  word_document:
+    
+    reference_docx: Template_JDSD_logo_first _2024.docx
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+![](images/Screenshot%202024-01-29%20165539.png)
+
+```{r main, include=FALSE}
+
+df <- read.csv(file="UK-data(csv).csv", header=TRUE,stringsAsFactors=TRUE)
+df
+df$Month <- factor(df$Month, levels = unique(df$Month))
+head(df)
+str(df)
+summ_Ukdata=summary(df[,-c(1,2,3)])
+summ_Ukdata
+library(ggplot2)
+
+                       
+graph_total_mistake=ggplot(df, aes(x = Month, y = Total.Summons)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(title = "Total Mistakes per Month",
+       x = "Month",
+       y = "Total Mistakes") +
+  theme_minimal()
+
+
+graph_total_RM=ggplot(df, aes(x = Month, y = Total.RM.)) +
+  geom_bar(stat = "identity", fill = "navyblue") +
+  labs(title = "Summons Total per Month (RM)",
+       x = "Month",
+       y = "Total RM") +
+  theme_minimal()
+
+sums_vehicle <- colSums(df[, c(4, 5, 6, 7, 8)])
+sums_vehicle <- data.frame(
+  category = names(sums_vehicle),
+  count = sums_vehicle
+)
+library(scales)
+graph_Distribution_mistake=ggplot(sums_vehicle[-nrow(sums_vehicle),], aes(x = "", y = count, fill = category)) +
+  geom_bar(stat = "identity", width = 1, color = "white") +
+  coord_polar("y") +
+  theme_void() +
+  ggtitle("Distribution of Summons by Vehicle Category") +
+  geom_text(aes(label = paste0(count," (",round((count/sum(count))*100, 1), "%)")), position = position_stack(vjust = 0.5)) +
+  scale_y_continuous(labels = percent_format())
+
+```
+
+## **EXPLORING TRAFFIC DISCIPLINARY SUMMONS: A DATA-DRIVEN ANALYSIS OF VIOLATIONS AT NORTHERN UNIVERSITY OF MALAYSIA (UUM) FROM JAN 2023 TO DEC 2023**
+
+### ^~**1**~^**Yap Jia Qing, ^2^Vincent Beh Hua Eik, ^3^Qithfirul Arsyad Alfaqih & ^4^Muhammad Amir Haziq Bin Abd Karim**
+
+#### School of Computing,
+
+#### Northern University of Malaysia, Malaysia
+
+#### Received: -/-/2024 Revised: -/-/2024 Accepted: -/-/2024 Published: -/-/2024
+
+\pagebreak
+
+# ABSTRACT
+
+This research paper investigates the statistics of traffic disciplinary summons at the Northern University of Malaysia (UUM) Security Department for the period from January 2023 to December 2023. The dataset, titled "Statistics Of Traffic Disciplinary Summons," was obtained through consultations with the security department and covers 118 records related to 20 types of traffic summons. The study involved a thorough analysis of each attribute and record in the dataset, leading to the extraction of three key pieces of information that were visualized. Findings revealed that December had the highest total summons, August the lowest total summons, and December also recorded the highest Summons Total (in RM). Moreover, the distribution of summons across vehicle categories showed that "car" had the highest percentage at 55.8%, while the "others" category had no recorded summons. This research provides valuable insights for the university's security and administrative departments, offering insights on traffic disciplinary patterns and opening the door for specialized interventions. The dataset was obtained through consultations with the security department, and the visualizations offer a clear representation of the data, making it accessible for stakeholders. This study is significant for university administrators, security personnel, and researchers interested in campus safety, as it not only contributes to the understanding of traffic violations but also suggests areas for improvement and policy adjustments.
+
+**Keywords**: Traffic Summons, University Security, Data Analysis, Visualization, Traffic Violations
+
+\pagebreak
+
+# INTRODUCTION
+
+The escalating concerns surrounding traffic violations necessitate an in-depth understanding of the patterns and trends associated with disciplinary summons. This research delves into a comprehensive data analysis conducted on a dataset obtained from the Security Department at the Northern University of Malaysia (UUM). The dataset, titled "Statistics Of Traffic Disciplinary Summons from Jan 2023 to Dec 2023," was meticulously examined by scrutinizing each attribute and record. The information gleaned from this dataset provides valuable insights into the disciplinary summonses issued, covering 20 types of traffic violations and spanning 118 records. The data collection process involved direct engagement with the security department, located near the UUM entrance, where a collaborative effort resulted in the acquisition of the dataset in early January 2024. The data file acquired from the department which was initially in a pdf file report, was then transformed into a csv format document by extracting the dataset therein in order to conduct the data analysis process.
+
+The analytical focus of this research involved extracting three key pieces of information from the dataset to create insightful visualizations. The visualizations include a pie chart illustrating the "Distribution of Summons by Vehicle Category" based on four categories of vehicles: car, motorcycle, others, and not registered vehicles, a bar chart depicting the "Total Summons per Month," and another showcasing "Summons Total per Month (RM)". Through these visualizations, patterns and trends in traffic disciplinary summonses are unveiled, providing a foundation for informed decision-making. This paper presents the findings derived from the visualizations, highlighting significant observations such as the month with the highest and lowest total summons, the month with the highest summons total in RM, and the distribution of summons across vehicle categories.
+
+\pagebreak
+
+# PROBLEM STATEMENT
+
+The research elaborates a clear focus on the analysis and processing of data related to summons and total fines (RM) ranging for various vehicle categories across many monthly periods. The method used in this research applies an analytical approach to provide visual representations that include three key aspects: the total number of summons each month, the cumulative fines (RM) from summons per month, and the distribution of summons across different types of vehicle. This research offers a detailed investigation into the dynamics underpinning summon incidence and its total collected fines in the context of vehicle operations. The research aims to facilitate a deeper understanding of the patterns inherent in the data by visualizing temporal trends in summon occurrence categorized by their type and time events, we are able to get a deeper understanding of the patterns and factors that contribute to these mistakes. This analysis allows us to identify any recurring patterns or common triggers for certain types of mistakes, enabling us to develop targeted strategies for prevention and improvement.
+
+Furthermore, the research examines the dynamics of summons and fines in vehicle operations, utilizing analytical approaches to show temporal trends and mistake occurrence patterns. It classifies summons by time event per month, identifying recurring patterns and common triggers. The research additionally examines the distribution of summons across different vehicle categories to uncover potential systemic issues or performance disparities. The temporal dimension view enables the legal department to monitor changes in patterns over time, encouraging a proactive approach to the development of contingency plans and summons control across the campus area.
+
+\pagebreak
+
+# FINDINGS
+
+```{r Distribution_mistake, echo=FALSE, fig.height=4, fig.width=7}
+plot(graph_Distribution_mistake)
+
+```
+
+Based on the pie chart above, it shows the distribution of summons for each vehicle type in 2023. Vehicle type Car has the highest recorded number of summons at 1293 cases, equivalent to 55.8% in total number of summons. When compared with the other three categories, vehicle type Not Registered has recorded 850 cases which is equivalent to 36.7% in total number of summons. Next, vehicle type Motorcycle has recorded 174 cases equal to 7.5% in total number of summons. Lastly, no cases have been recorded in category Others.
+
+\pagebreak
+
+```{r total_mistake, echo=FALSE, fig.height=4, fig.width=7}
+plot(graph_total_mistake)
+```
+
+Based on the bar chart above, it shows the number of total summons for each month in 2023. December has the highest number of total summons among the months which recorded 349 cases. June closely followed, securing the second-highest rank with total summons of 343 cases. May on the other hand has recorded total summons of 338 cases occupying the third position.
+
+Next, the fourth position was held by July representing total summons of 264 cases followed by January with 247 cases. At sixth, April recorded 229 cases.
+
+After that, November has recorded total summons of 152 cases ranking seventh followed by October which is slightly lesser at 151 cases. March held the ninth place with total summons of 63 cases.
+
+Besides that, February has recorded total summons of 63 cases followed by September which recorded total summons of 45 cases. Lastly, August has the lowest number of total summons recorded at 23 cases only.
+
+\pagebreak
+
+```{r total_RM, echo=FALSE, fig.height=4, fig.width=7}
+plot(graph_total_RM)
+```
+
+Based on the bar chart above, it shows the total amount of summons for each month in 2023. December has the highest number of total summons among the months which recorded RM12590. June closely followed, securing the second-highest rank with the total amount of summons of RM12180. May has recorded RM11960 in total summons , occupying the third position.
+
+Next, the fourth position was held by July which recorded RM10000 in total amount of summons followed by January with RM8590 in total amount of summons . Sixth position is held by April which recorded RM7920.
+
+After that, October has recorded RM4860 in total amount of summons ranking at seventh position followed by November which is slightly less with RM4600. March held ninth places with RM3620 in total summons.
+
+Then, February recorded RM2430 in total amount of summons followed by September which recorded RM1380. Lastly, August has the lowest amount of total summons which recorded at RM830 only.
+
+\pagebreak
+
+# CONCLUSION
+
+In conclusion, this research paper sheds light on the comprehensive analysis of traffic disciplinary summons at UUM Security Department for the year 2023. Through the meticulous examination of the dataset, valuable insights have been extracted, offering a nuanced understanding of traffic violation patterns on campus.
+
+The visualizations, including the pie chart depicting the distribution of mistakes by vehicle category, the bar chart illustrating total mistakes per month, and the following bar chart showcasing the total amount of Summons (in RM) per month, provide a clear and accessible representation of the data. These visualizations serve as valuable tools for stakeholders, enabling them to make informed decisions and implement targeted interventions to improve traffic discipline on campus.
+
+The findings indicate that December experienced the highest total summons, while August had the lowest. Furthermore, December also recorded the highest Summons Total (in RM). The distribution of mistakes across vehicle categories revealed that "car" had the highest percentage, constituting 55.8% of total summons, whereas the "others" category had no recorded mistakes. The research not only contributes to the understanding of traffic violations at UUM but also provides a foundation for future policy adjustments and interventions. University administrators, security personnel, and researchers interested in campus safety can benefit from these insights, fostering a safer and more efficient traffic environment within the university premises.
+
+In essence, this research underscores the importance of data-driven decision-making in addressing traffic-related challenges on university campuses. By leveraging insights gained from the analysis, UUM can develop targeted strategies to enhance traffic discipline, reduce mistakes, and optimize resource allocation. This study serves as a valuable reference for similar institutions aiming to enhance their understanding of traffic patterns and improve overall safety on campus.

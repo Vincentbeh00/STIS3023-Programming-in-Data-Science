@@ -1,0 +1,342 @@
+library(ggplot2)
+
+#covid_cases===================================================================================
+covid_cases  <- read.csv(file="covid_cases_vaxstatus.csv", header=TRUE,stringsAsFactors=TRUE) 
+covid_cases$date <- as.Date(covid_cases$date, format = "%Y-%m-%d")
+head(covid_cases)
+#head(covid_cases) is showing the structure of covid cases data frame.
+summary(covid_cases[-1])
+# summary(covid_cases[-1]) is showing the basic exploratory data analysis of this data frame.
+#correlation is not relevant in this dataset
+
+time_malaysia=covid_cases[covid_cases$state=="Malaysia",]
+ggplot(time_malaysia, aes(x = date, y = cases_unvax + cases_pvax + cases_fvax + cases_boost)) +
+  geom_line(color = "blue") +  # Specify the color here
+  labs(title = "Total COVID-19 Cases Over Time",
+       x = "Date",
+       y = "Total Cases") +
+  theme_minimal()
+#Based on the time series plot shown, the covid cases in malaysia had 2 major spikes in 2021 and 2022,
+#Other than that, daily cases has been under 10000.
+
+# Combine the totals into a vector
+total_vax <- c("Unvaccinated" = total_unvax[4],
+               "Partially Vaccinated" = total_pvax[4],
+               "Fully Vaccinated" = total_fvax[4],
+               "Booster" = total_boost[4])
+
+# Remove ".Malaysia" from labels
+labels_without_malaysia <- gsub(".Malaysia", "", names(total_vax))
+
+# Plot a pie chart with custom labels and colors
+pie(total_vax,
+    main = "Distribution of COVID-19 cases by Vaccination Status",
+    labels = paste(labels_without_malaysia, ": ", total_vax, " (",
+                   paste0(round(100 * total_vax / sum(total_vax), 2), "%)")),
+    col = c("tomato2", "yellow", "green", "darkseagreen4"),  # Use custom colors
+    cex = 0.8  # Adjust label font size
+)
+
+# Display the total number of cases
+cat("Total COVID-19 cases:", sum(total_vax), "\n")
+
+#Based on the pie chart, there is 2027416 of unvaccinated COVID-19 cases in Malaysia which has the highest 
+#proportion(39.13%) Fully Vaccinated COVID-19 cases has recorded 1391977 cases which has the second 
+#largest proportion in total number of COVID-19 cases in Malaysia.
+#Booster COVID-19 cases has recorded 1325136 cases,and it is25.58% in total number of COVID-19 cases in Malaysia
+#For the partially vaccinated, there are 436283 of COVID-19 cases and it is 8.42% of total cases.
+#The total number of COVID-19 cases in Malaysia from the dataset is 5180812 cases.
+
+total_unvax=tapply(covid_cases$cases_unvax , covid_cases$state, sum)
+total_pvax=tapply(covid_cases$cases_pvax , covid_cases$state, sum)
+total_fvax=tapply(covid_cases$cases_fvax , covid_cases$state, sum)
+total_boost=tapply(covid_cases$cases_boost , covid_cases$state, sum)
+
+barplot(total_unvax[-4], main = "Total Unvaccinated COVID-19 Cases by State", 
+        xlab = "state", ylab = "Number of new cases", col=rainbow(16) ,legend = TRUE,
+        args.legend = list(bty = "n" ,x = "topleft", ncol = 2))
+barplot(total_pvax[-4], main = "Total Partially Vaccinated COVID-19 Cases by State", 
+        xlab = "state", ylab = "Number of new cases", col=rainbow(16) ,legend = TRUE,
+        args.legend = list(bty = "n" ,x = "topleft", ncol = 2))
+barplot(total_fvax[-4], main = "Total Fully Vaccinated COVID-19 Cases by State", 
+        xlab = "state", ylab = "Number of new cases", col=rainbow(16) ,legend = TRUE,
+        args.legend = list(bty = "n" ,x = "topleft", ncol = 2))
+barplot(total_boost[-4], main = "Total Booster COVID-19 Cases by State", 
+        xlab = "state", ylab = "Number of new cases", col=rainbow(16) ,legend = TRUE,
+        args.legend = list(bty = "n" ,x = "topleft", ncol = 2))
+#Based on the figures shown, we can say that Selangor has the highest number of
+# COVID-19 cases regardless of Vaccination status
+
+
+#exchange_rates================================================================================
+exchange_rates <- read.csv(file="exchangerates.csv", header=TRUE,stringsAsFactors=TRUE)
+exchange_rates$date <- as.Date(exchange_rates$date, format = "%Y-%m-%d")
+head(exchange_rates)
+summary(exchange_rates[,-1])
+corexchangerates=data.frame(cor(exchange_rates[-1],exchange_rates[-1]))
+corexchangerates
+#head(exchange_rates) is showing the structure of the data frame and
+#summary(exchange_rates[,-1]) is showing the basic exploratory data analysis of this data frame.
+#corexchangerates is storing the correlation of each exchange rate to others.
+
+library(reshape2)
+library(plotly)
+
+cor_matrix <- cor(exchange_rates[-1])
+cor_melted <- melt(cor_matrix)
+
+#Create an interactive heatmap with plotly
+plot_ly(
+  data = cor_melted,
+  x = ~Var1,
+  y = ~Var2,
+  z = ~value,
+  type = "heatmap",
+  colors = colorRamp(c("blue", "white", "red")),
+  colorbar = list(title = "Correlation")
+) %>%
+  layout(title = "Correlation Heatmap", xaxis = list(title = ""), yaxis = list(title = ""))
+#This heatmap allows better understanding of the correlations between different currency pairs.
+#With this heatmap, we can focus in on which pairs of currency to take note of.
+#Special Note: Hover the cursor over the map for exact values.
+
+ggplot(exchange_rates, aes(x = date)) +
+  geom_line(aes(y = myr_usd, color = "USD")) +
+  geom_line(aes(y = myr_eur, color = "EUR")) +
+  geom_line(aes(y = myr_sgd, color = "SGD")) +
+  labs(title = "Exchange Rates Over Time", x = "Date", y = "Exchange Rate") +
+  theme_minimal() + 
+  scale_x_date(labels = scales::date_format("%d %b %Y"))
+#This line chart is showing the exchange rate of MYR to USD,EUR and SGD from 2003 to 2023.
+#Although there are up and downs, there is a general decreasing trend for all three
+#currency pairs. 
+#This means that the over the years, the value of MYR has been decreasing which 
+#could be linked to the underperformance of Malaysia as a country.
+
+calculate_ROC <- function(data, column_name) {
+  roc=c(0)
+  roc <-append(roc,diff(data[[column_name]]) / lag(data[[column_name]], default = NaN) * 100)
+  return(roc)
+}
+# this is a used defined function to calculate the rate of changes.
+
+roc_dataframe=data.frame(Date = exchange_rates$date)
+for (col in names(exchange_rates)[-1]) {
+  roc <- calculate_ROC(exchange_rates, col)  # Calculate ROC for each column
+  roc_dataframe[col]<- roc[-7323]  # Store ROC values in the new data frame
+}
+roc_dataframe2023= subset(roc_dataframe, format(Date, "%Y") == "2023")
+#this is subseting the rate of changes in 2023 from the data frame.
+
+ggplot(roc_dataframe2023 ,aes(x=Date,group=1))+
+  geom_line(aes(y=myr_usd),color="red")+
+  labs(title = "Rate of Changes of myr_usd 2023", x = "Date", y = "Rate of change(%)")
+
+ggplot(roc_dataframe2023 ,aes(x=Date,group=1))+
+  geom_line(aes(y=myr_eur),color="red")+
+  labs(title = "Rate of Changes of myr_eur 2023", x = "Date", y = "Rate of change(%)")
+
+
+ggplot(roc_dataframe2023 ,aes(x=Date,group=1))+
+  geom_line(aes(y=myr_sgd),color="red")+
+  labs(title = "Rate of Changes of myr_sgd 2023", x = "Date", y = "Rate of change(%)")
+
+#The above 3 charts are rate of change for the three currency pairs.
+
+
+
+
+#hies_district=================================================================================
+hies_district <- read.csv(file="hies_district.csv", header=TRUE,stringsAsFactors=TRUE) 
+
+head(hies_district)
+
+summary(hies_district[,-c(1:3)])
+
+decen_poverty=setNames(hies_district$poverty[order(-hies_district$poverty)]
+                       ,paste(hies_district$state[order(-hies_district$poverty)], 
+                              hies_district$district[order(-hies_district$poverty)] , sep=" "))
+barplot(decen_poverty[1:15], main = "Top 15 Districts With The Highest Poverty in Malaysia", 
+        xlab = "District", ylab = "Poverty score", col=rainbow(15) ,legend = TRUE,
+        args.legend = list(bty = "n" ,x = "topright", ncol = 2)
+)
+#These are the 15 most poverty stricken districts in Malaysia.
+#11/15 of these districts are in Sabah, the Government should 
+#work hard to reduce this. 
+
+
+accen_gini=setNames(hies_district$gini[order(hies_district$gini)]
+                    ,paste(hies_district$state[order(hies_district$gini)], 
+                           hies_district$district[order(hies_district$gini)] , sep=" "))
+barplot(accen_gini[1:5], main = "Top 5 Districts with Lowest Gini in Malaysia", 
+        xlab = "District", ylab = "Gini Score", col=rainbow(5) ,legend = TRUE,ylim = c(0,0.4),
+        args.legend = list(bty = "n" ,x = "topright", ncol = 2)
+)
+#Gini Score is the distribution of income between residents in districts 
+#where lower scores means the income of that district is the least different
+
+meanbyState=tapply(hies_district$income_mean , hies_district$state,mean)
+medianbyState=tapply(hies_district$income_median , hies_district$state,mean)
+hiesbyState=data.frame()
+hiesbyState=rbind(hiesbyState,meanbyState)
+hiesbyState=rbind(hiesbyState,medianbyState)
+colnames(hiesbyState)=c(unique( hies_district$state))
+barplot(
+  as.matrix(hiesbyState),
+  beside = TRUE,
+  col = c("green", "blue"),
+  main = "Mean and median income of each state in Malaysia",
+  xlab = "State",
+  ylab = "Income(RM)",legend=TRUE,
+  args.legend = list(bty = "n" ,x = "topleft", ncol = 4,cex=0.8)
+)
+legend(
+  x = "topleft",
+  legend = c("Mean", "Median"),
+  fill = c("green", "blue"),
+  bty = "n",
+  ncol = 4,
+  cex = 1
+)
+#Based on the bar plot, we can say that W.P. Putrajaya has the highest mean income. 
+#State Kelantan has the lowest mean and median income.
+
+
+
+#labourforce_annual============================================================================
+labourforce_annual <- read.csv(file="labourforce_annual.csv", header=TRUE,stringsAsFactors=TRUE) 
+labourforce_annual$date <- as.Date(labourforce_annual$date, format = "%Y-%m-%d")
+head(labourforce_annual)
+#head(labourforce_annual) is showing the struture of Labour force data frame.
+summary(labourforce_annual[,-1])
+# summary(labourforce_annual[,-1]) is showing the basic exploratory data analysis of this data frame.
+
+cor(labourforce_annual[-1],labourforce_annual[-1])
+#this shows the correlation of each data of labour force and others.
+
+ggplot(labourforce_annual, aes(x = date)) +
+  geom_line(aes(y = lf_size, color = "Labour Force Size")) +
+  geom_line(aes(y = employed, color = "Employed")) +
+  geom_line(aes(y = outside, color = "Outside Labour Force")) +
+  geom_line(aes(y = unemployed, color = "Unemployed")) +
+  labs(title = "Labour Force Amount In Malaysia",
+       x = "Date",
+       y = "Thousands of people ('000 people)") +
+  scale_x_date(date_labels = "%B-%Y") +
+  scale_color_manual(name = "Legend", 
+                     values = c("Labour Force Size" = "red",
+                                "Employed" = "blue",
+                                "Outside Labour Force" = "green",
+                                "Unemployed" = "purple")) +
+  theme_minimal()
+#Based on the chart, we can say that the Labour Force Size and Employed Size 
+#have nearly tripled over time.
+#Unemployement numbers are fairly stable over time.
+
+roc_emrate=data.frame(Date = labourforce_annual$date)
+for (col in names(labourforce_annual)[-1]) {
+  roc <- calculate_ROC(labourforce_annual, col)  # Calculate ROC for each column
+  roc_emrate[col]<- roc[-38]  # Store ROC values in the new data frame
+}
+
+ggplot(roc_emrate, aes(x = Date)) +
+  geom_line(aes(y =outside, color = "People Outside Labour Force")) +
+  geom_line(aes(y = u_rate, color = "Unemployment Rate")) +
+  labs(title = "Rate of Changes of People Outside Labour Force and Unemployment Rate in Malaysia Over Time", x = "Year", y = "Rate of Changes (%)") +
+  scale_x_date(date_labels = "%B-%Y") +
+  scale_color_manual(values = c("blue","red"), 
+                     labels = c("People Outside Labour Force","Unemployment Rate")) +
+  theme_minimal()
+cor(labourforce_annual$outside,labourforce_annual$u_rate )
+#The ROC of unemployment is volatile
+#The ROC of people outside labour force is fairly stable.
+#The correlation of People Outside Labour Force and Unemployment Rate is -0.5409 which 
+#indicate a moderate negative relationship between them.
+
+
+
+ggplot(roc_emrate, aes(x = Date)) +
+  geom_line(aes(y =lf_size, color = "Labour force size")) +
+  geom_line(aes(y = employed, color = "Employed size")) +
+  labs(title = "Rate of Changes of Labour force size and Employed size in Malaysia from 1982 to 2021 ", x = "Year", y = "Rate of Changes (%)") +
+  scale_x_date(date_labels = "%B-%Y") +
+  scale_color_manual(values = c("blue", "red"), 
+                     labels = c("Employed size","Labour force size" )) +
+  theme_minimal()
+cor(labourforce_annual$lf_size,labourforce_annual$employed)
+#The ROC for both is volatile but follows the same trend overall
+#The correlation of labour force size and Employed size is 0.9996334 which indicate the strong positive 
+#relationship between them.
+
+
+
+#population===================================================================================
+population <- read.csv(file="population_state.csv", header=TRUE,stringsAsFactors=TRUE) 
+population$date <- as.Date(population$date, format = "%Y-%m-%d")
+head(population)
+#head(population) is showing the struture of population data frame.
+summary(population)
+#summary(population) is not suitable because most of the data recorded in this data frame is categorical data
+#which only give count of each category and also the struture of data frame is special.
+statepopulation=data.frame(population[population$sex=="overall_sex"
+                                      &population$ethnicity=="overall_ethnicity"
+                                      &population$age=="overall_age",])
+
+statepopulation2023 <- subset(statepopulation, format(date, "%Y") == "2023")
+
+# Create a bar plot using ggplot
+ggplot(data = statepopulation2023, aes(x = state, y = population, fill = state)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Population of Each State in 2023",
+       x = "State",
+       y = "Population in Thousands ('000)") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_discrete(name = "State")
+#Selangor, Johor and Sabah are Top 3 in population numbers
+#Perlis, WP Labuan and WP Putrajaya are the bottom 3 in population
+
+
+agepopulation2023 = subset(population, (sex == "overall_sex") &
+                             (ethnicity == "overall_ethnicity")&(age !="overall_age")&
+                             date=="2023-01-01")
+
+agepopulationSgor=subset(agepopulation2023, state == "Selangor")
+agepopulationSgor$age <- factor(agepopulationSgor$age, levels = c("0-4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", 
+                                                                  "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79",
+                                                                  "80-84", "85+"))
+agepopulationSgor <- agepopulationSgor[order(agepopulationSgor$age), ]
+ggplot(agepopulationSgor, aes(x = age, y = population, fill = age)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Population of Each Age Group in Selangor in 2023",
+       x = "Age Group",
+       y = "Population in Thousands ('000)",
+       fill = "Age Group") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_discrete(guide = FALSE) 
+#Based on the bar plot, we can say that most of the population of Selangor in 2023 is between age 35-39 
+#85+ year olds are the least in Selangor.
+
+
+sexpopulation = subset(population, (sex == "female" | sex == "male") &
+                         (ethnicity == "overall_ethnicity") &
+                         (age == "overall_age"))
+sexpopulation
+sex_by_state_year = aggregate(sexpopulation$population,
+                              by = list(State = sexpopulation$state,
+                                        Sex = sexpopulation$sex,
+                                        Date = sexpopulation$date),
+                              FUN = sum)
+sex_by_state2023 <- subset(sex_by_state_year, format(Date, "%Y") == "2023")
+sex_by_state2023
+ggplot(sex_by_state2023, aes(x = State, y = x, fill = Sex)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Number of Females and Males for Each State in 2023",
+       x = "State",
+       y = "Population in Thousands ('000)",
+       fill = "Sex") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_manual(values = c("red", "blue")) 
+#Based on the bar chart, we can say that overall there are more males than females
+#in majority of states
+
+

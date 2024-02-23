@@ -1,0 +1,159 @@
+---
+title: "Untitled"
+author: "YJQ"
+date: "`r Sys.Date()`"
+output: 
+  powerpoint_presentation:
+    reference_doc: Presentation1.pptx
+---
+
+# 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+```
+
+```{r main, include=FALSE}
+
+df <- read.csv(file="UK-data(csv).csv", header=TRUE,stringsAsFactors=TRUE)
+df
+df$Month <- factor(df$Month, levels = unique(df$Month))
+head(df)
+str(df)
+summ_Ukdata=summary(df[,-c(1,2,3)])
+summ_Ukdata
+library(ggplot2)
+
+                       
+graph_total_mistake=ggplot(df, aes(x = Month, y = Total.Summons)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(title = "Total Mistakes per Month",
+       x = "Month",
+       y = "Total Mistakes") +
+  theme_minimal()
+
+
+graph_total_RM=ggplot(df, aes(x = Month, y = Total.RM.)) +
+  geom_bar(stat = "identity", fill = "navyblue") +
+  labs(title = "Summons Total per Month (RM)",
+       x = "Month",
+       y = "Total RM") +
+  theme_minimal()
+
+sums_vehicle <- colSums(df[, c(4, 5, 6, 7, 8)])
+sums_vehicle <- data.frame(
+  category = names(sums_vehicle),
+  count = sums_vehicle
+)
+library(scales)
+graph_Distribution_mistake=ggplot(sums_vehicle[-nrow(sums_vehicle),], aes(x = "", y = count, fill = category)) +
+  geom_bar(stat = "identity", width = 1, color = "white") +
+  coord_polar("y") +
+  theme_void() +
+  ggtitle("Distribution of Summons by Vehicle Category") +
+  geom_text(aes(label = paste0(count," (",round((count/sum(count))*100, 1), "%)")), position = position_stack(vjust = 0.5)) +
+  scale_y_continuous(labels = percent_format())
+
+
+library(knitr)
+```
+
+```{r initial, include=FALSE}
+library(tidyverse)
+library(officer)
+library(ggplot2)
+read_pptx("Presentation1.pptx") %>%
+ officer::layout_properties()
+
+get_placeholder_dims <- function(presentation, label, dim = "width", unit = "in") {
+   layout <- officer::layout_properties(presentation)
+   ifelse(
+     dim=="width",
+     dimension <- layout$cx[match(label, layout$ph_label)],
+     dimension <- layout$cy[match(label, layout$ph_label)]
+   )
+
+   if (unit == "in") {
+     dimension
+   } else if (unit == "px") {
+     dimension*96
+   } else if (unit == "cm") {
+     dimension * 2.54
+   } else stop(glue::glue("Only 'in', 'px' and 'cm' are supported as units. You entered '{unit}'."))
+}
+
+group_member="Yap Jia Qing (278688)
+Vincent Beh Hua Eik (279018)
+Qithfirul Arsyad Alfaqih (284168)
+Muhammad Amir Haziq Bin Abd Karim (281678)" 
+
+intro="The study aims to understand patterns and trends in traffic violations by analyzing disciplinary summonses. 
+Data obtained from the Security Department at the Northern University of Malaysia (UUM). Dataset covers Statistics Of Traffic Disciplinary Summons from Jan 2023 to Dec 2023.
+20 types of traffic violations and 118 records analyzed.
+Visualisations reveal patterns and trends in traffic disciplinary summonses."
+
+visua="Three key pieces of information extracted for insightful visualisations.Visualisations include:
+--Distribution of Summons by Vehicle Category (pie chart)  
+--Total Mistakes per Month (bar chart) 
+--Summons Total per Month (RM) (bar chart)
+The paper presents insights derived from the visualizations, providing a foundation for informed decision-making."
+
+conclu="Comprehensive analysis of UUM Security Department's traffic disciplinary summons for 2023. 
+Research contributes to understanding traffic violations, providing a foundation for future policy adjustments.
+Valuable insights for university administrators, security personnel, and researchers interested in campus safety.
+Emphasizes importance of data-driven decision-making for addressing traffic challenges on campuses.
+UUM can leverage analysis insights to develop targeted strategies for enhancing traffic discipline."
+
+prob="Through the visualization of temporal trends in summons occurrence, categorized by both type and time events, we gain a comprehensive understanding of the patterns and other contributing factors. This analysis enables us to pinpoint recurring patterns and common triggers associated with specific types of summons for each vehicle category. Additionally, by comparing the occurrence of different types of summons over time, we can assess the effectiveness of any implemented measures or interventions in reducing their frequency."
+
+eda="head(df)
+str(df)
+summ_Ukdata=summary(df[,-c(1,2,3)])"
+```
+
+```{r output, include=FALSE}
+output =read_pptx("Presentation1.pptx")%>%  
+        remove_slide(index = 1) %>%   
+        add_slide(layout = "Title page", master = "Master temp") %>%
+        ph_with(value = "EXPLORING TRAFFIC DISCIPLINARY SUMMONS: A DATA-DRIVEN ANALYSIS OF VIOLATIONS AT NORTHERN UNIVERSITY OF MALAYSIA (UUM) FROM JAN 2023 TO DEC 2023", location = ph_location_label(ph_label = "Title name")) %>% 
+
+        ph_with(value =group_member  , location = ph_location_label(ph_label = "group member"))%>% 
+        add_slide(layout = "content slide", master = "Master temp") %>% 
+        ph_with(value = "INTRODUCTION", location = ph_location_label(ph_label = "title box")) %>%                  ph_with(value = "Objective and Data Source:", location = ph_location_label(ph_label = "subtitle")) %>%
+        ph_with(value = intro , location = ph_location_label(ph_label = "Text box"))%>% 
+  
+  
+        add_slide(layout = "content slide", master = "Master temp") %>% 
+        ph_with(value = "INTRODUCTION (cont')", location = ph_location_label(ph_label = "title box")) %>%
+        ph_with(value = "Visualisations:", location = ph_location_label(ph_label = "subtitle")) %>%
+        ph_with(value = visua , location = ph_location_label(ph_label = "Text box"))%>% 
+  
+        add_slide(layout = "content slide", master = "Master temp") %>% 
+        ph_with(value = "Problem Statement", location = ph_location_label(ph_label = "title box")) %>%
+        ph_with(value = prob , location = ph_location_label(ph_label = "Text box"))%>%
+  
+        add_slide(layout = "content slide", master = "Master temp") %>% 
+        ph_with(value = "Exploratory Data Analysis(EDA)", location = ph_location_label(ph_label = "title box")) %>%
+        ph_with(value = "Method Used for EDA", location = ph_location_label(ph_label = "subtitle")) %>%
+        ph_with(value = eda , location = ph_location_label(ph_label = "Text box"))%>%      
+  
+        add_slide(layout = "Chart slide", master = "Master temp") %>%
+        ph_with(value = "Findings 1", location = ph_location_label(ph_label = "findings title"))%>%
+        ph_with(value = graph_Distribution_mistake, location = ph_location_label(ph_label = "Chart box")) %>%
+
+        add_slide(layout = "Chart slide", master = "Master temp") %>%
+        ph_with(value = "Findings 2", location = ph_location_label(ph_label = "findings title"))%>%
+        ph_with(value = graph_total_mistake, location = ph_location_label(ph_label = "Chart box")) %>%
+
+        add_slide(layout = "Chart slide", master = "Master temp") %>%
+        ph_with(value = "Findings 3", location = ph_location_label(ph_label = "findings title"))%>%
+        ph_with(value = graph_total_RM, location = ph_location_label(ph_label = "Chart box"))%>%
+
+         add_slide(layout = "content slide", master = "Master temp") %>% 
+        ph_with(value = "Conclusion", location = ph_location_label(ph_label = "title box")) %>%
+        ph_with(value = conclu , location = ph_location_label(ph_label = "Text box"))
+
+print(output,"GA1.pptx")
+
+```

@@ -1,0 +1,39 @@
+"0","knitr::opts_chunk$set(echo = TRUE)"
+"2","警告訊息：
+"
+"2","1: "
+"2","於 grep(""^(---|\\.\\.\\.)\\s*$"", input_lines)："
+"2","
+ "
+"2"," unable to translate 'M||g}<c6>w<b0>~DJ%$<fd>nOh<da><W2++M<90><a4>&t<de>J<81><f8>t<99><fc> vb*<bd>O<bd><d7><f7><d1>Q<bb><a3><85><ce>Ni<fe><a0>}N/<f6><d1><d0>k椰<eb><ae><f1><8e><ba><d7><e1><97>޺<c0>I<ed>bPoRYLFxT<d0>{'.<ad><ff>G<c7>ݫ<d1><97><ac>Z}<f1>...' to a wide string
+"
+"2","2: "
+"2","於 grep(""^(---|\\.\\.\\.)\\s*$"", input_lines)："
+"2","
+ "
+"2"," input string 2 is invalid
+"
+"2","3: "
+"2","於 grep(""^(---|\\.\\.\\.)\\s*$"", input_lines)："
+"2","
+ "
+"2"," unable to translate 'B<a8>i7<a8>Rw<95>X<89>g&<a2><f9>Q<e2>B<b9>=!<a0><a8>]t<e7><f3><f3><93><e5><f9>r<ef><b7><ea><99>sq1h<98>6-(&Zz' to a wide string
+"
+"2","4: "
+"2","於 grep(""^(---|\\.\\.\\.)\\s*$"", input_lines)："
+"2","
+ "
+"2"," input string 3 is invalid
+"
+"2","5: "
+"2","於 grep(""^(---|\\.\\.\\.)\\s*$"", input_lines)："
+"2","
+ "
+"2"," unable to translate '<8f><9b><d5><e4><96><8b><f9>oIj<a2>.U[B<d1>0<88><a4>[<c4>b<f6>T<9a><98>8ԟ.fOR<9f><b9><c7>D<e6><89>zƋ<b6><bd><c6><fc><93><87>L<b5><b6>' to a wide string
+"
+"2","6: "
+"2","於 grep(""^(---|\\.\\.\\.)\\s*$"", input_lines)："
+"2","
+ "
+"2"," input string 4 is invalid
+"
